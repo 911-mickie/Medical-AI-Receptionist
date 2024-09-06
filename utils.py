@@ -43,7 +43,7 @@ try:
         for idx, emergency in enumerate(emergency_data):
             keywords_text = " ".join(emergency.get('keywords', []))
             embedding = embedding_model.encode(keywords_text)
-            print(f"DEBUG: Embedding for {emergency['name']} generated: {embedding[:5]}...")  # Debug: Print part of the embedding
+            #print(f"DEBUG: Embedding for {emergency['name']} generated: {embedding[:5]}...")  # Debug: Print part of the embedding
             point = PointStruct(id=idx, vector=embedding, payload={"name": emergency['name'], "steps": emergency['steps']})
             client.upsert(collection_name=collection_name, points=[point])
 except FileNotFoundError:
@@ -57,14 +57,14 @@ except json.JSONDecodeError:
 def classify_intent(text):
     result = nlp_pipeline(text)[0]
     intent_label = result['label']
-    print(f"DEBUG: Intent classified as {intent_label}")  # Debug: Print classified intent
+    #print(f"DEBUG: Intent classified as {intent_label}")  # Debug: Print classified intent
     intent = 0 if intent_label == 'LABEL_0' else 1
     return intent
 
 # Function to find the best match and generate augmented response
 def find_best_match(user_input):
     user_embedding = embedding_model.encode(user_input)
-    print(f"DEBUG: User embedding generated: {user_embedding[:5]}...")  # Debug: Print part of the user embedding
+    #print(f"DEBUG: User embedding generated: {user_embedding[:5]}...")  # Debug: Print part of the user embedding
     
     # Perform the search on Qdrant
     search_result = client.search(
@@ -76,10 +76,10 @@ def find_best_match(user_input):
     # Debugging the search result
     if search_result:
         best_match = search_result[0].payload
-        print(f"DEBUG: Raw search result payload: {best_match}")  # Check the structure of 'best_match'
+        #print(f"DEBUG: Raw search result payload: {best_match}")  # Check the structure of 'best_match'
         
         similarity_score = search_result[0].score
-        print(f"DEBUG: Similarity Score: {similarity_score}")
+        #print(f"DEBUG: Similarity Score: {similarity_score}")
         
         # Ensure best_match is a dictionary
         if isinstance(best_match, dict):
@@ -87,10 +87,10 @@ def find_best_match(user_input):
             augmented_response = generate_augmented_response(best_match, user_input)
             return augmented_response, similarity_score
         else:
-            print(f"DEBUG: Unexpected best_match type: {type(best_match)}")  # Check if best_match is not a dictionary
+            #print(f"DEBUG: Unexpected best_match type: {type(best_match)}")  # Check if best_match is not a dictionary
             return "Error: Unexpected response format from Qdrant.", 0
     else:
-        print("DEBUG: No match found in Qdrant.")
+        #print("DEBUG: No match found in Qdrant.")
         return "Sorry, I couldn't find relevant information. Can you provide more details?", 0
 
 
