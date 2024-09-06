@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Adrin's Clinic - AI Receptionist</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dr. Adrin's Clinic</h1>
+            <p>Welcome to <strong>AI-Receptionist</strong></p>
+        </div>
+
+        <div class="chat-container">
+            <div id="chat-box"></div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type your message here..." autofocus>
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Create a WebSocket connection to the server
+        const socket = new WebSocket(`ws://localhost:8000/ws/default_session`);
+
+        // WebSocket event: On connection established
+        socket.onopen = function(event) {
+            console.log("WebSocket connection established");
+        };
+
+        // WebSocket event: On receiving a message from the server
+        socket.onmessage = function(event) {
+            const responseMessage = event.data;
+            appendMessage('AI', responseMessage);
+        };
+
+        // WebSocket event: On connection closed
+        socket.onclose = function(event) {
+            console.log("WebSocket connection closed");
+        };
+
+        // Send message via WebSocket when the button is clicked
+        document.getElementById('send-button').onclick = function() {
+            sendMessage();
+        };
+
+        // Send message via WebSocket when Enter key is pressed
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Function to send user input via WebSocket
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim()) {
+                appendMessage('You', userInput);  // Display user's message
+                socket.send(userInput);  // Send user's input to the server
+                document.getElementById('user-input').value = '';  // Clear input field
+            }
+        }
+
+        // Function to append message to the chat box
+        function appendMessage(sender, message) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message ' + sender;
+            messageElement.innerText = sender + ': ' + message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to the bottom
+        }
+    </script>
+</body>
+</html>

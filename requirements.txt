@@ -1,0 +1,9 @@
+fastapi
+transformers
+sentence-transformers
+qdrant-client
+torch
+numpy==1.26.4
+openai
+uvicorn
+python-dotenv
